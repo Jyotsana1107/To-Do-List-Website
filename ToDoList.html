@@ -5,10 +5,15 @@
 <body>
 	<h2>To Do List </h2>
 	<input id = "inp" placeholder="Enter your Task "><br>
+	<button id = "saveBtn"> Save </button>
+	<button id = "delBtn"> DeleteAll </button>
+	<div id="list"></div>
 
 	<script>
 		const key = "todo";
 		var input = document.getElementById("inp");
+		var save  = document.getElementById("saveBtn");
+		var deleteAll = document.getElementById("delBtn");
 
 
 		//Local Storage functions
@@ -24,18 +29,22 @@
 
 		//Create a task and add it to the list or to remove from list
 		function createTask(val){
-			var val = input.value;
+			
+			//div to hold the task and its features
 			var div = document.createElement("div");
 			div.style.display = "flex";
 			div.style.alignItems = "center";
 			div.style.gap = "10px";
 			div.style.width = "400px";
+
+			//tasks
 			var p = document.createElement("p");
 			var text = document.createTextNode(val);
 			p.appendChild(text);
-			div.appendChild(p);
 			p.style.flex = "1";
+			div.appendChild(p);
 			
+			//checkbox to mark task as done or not
 			var check = document.createElement("input");
 			check.type = "checkbox";
 			check.addEventListener("change", function() {
@@ -47,24 +56,28 @@
 			});
 			div.appendChild(check);
 
+			//pen to edit the task
 			var pen = document.createElement("button");
 			pen.innerText = "✏";
 			pen.addEventListener("click", function() {
 				var newVal = prompt("Edit your task", p.innerText);
-				editTask(p.innerText, newVal);
-				if (newVal) {
+				if (newVal && newVal !== p.innerText) {
+     				editTask(p.innerText, newVal); 
 					p.innerText = newVal;
 				}
 			});
 			div.appendChild(pen);
 
+			//cross to delete the task
 			var btn = document.createElement("button");
 			btn.innerText = "X";
 			btn.addEventListener("click", function() {
 				deleteTask(div);
 			});
 			div.appendChild(btn);
-			document.body.appendChild(div);
+
+			var list = document.getElementById("list");
+			list.appendChild(div);
 		}
 
 
@@ -134,60 +147,9 @@
 			var old = getData();
 			if (old){
 				var arr = old.split("#");
-				for (let i = 0; i<arr.length; i++){
-					//block
-					var div = document.createElement("div");
-					div.style.display = "flex";
-					div.style.alignItems = "center";
-					div.style.gap = "10px";
-					div.style.width = "400px";
-					
-					//paragraph
-					var p = document.createElement("p");
-					p.innerText = arr[i];
-					p.addEventListener("click", function() {
-						var newVal = prompt("Edit your task", this.innerText);
-						editTask(this.innerText, newVal);
-						if (newVal) {
-							this.innerText = newVal;
-						}
-					});
-					p.style.flex = "1";
-					div.appendChild(p);
-
-					//checkbox
-					var check = document.createElement("input");
-					check.type = "checkbox";
-					check.addEventListener("change", function() {
-						if (this.checked) {
-							p.style.textDecoration = "line-through";
-						} else {
-							p.style.textDecoration = "none";
-						}
-					});
-					div.appendChild(check);
-
-					var pen = document.createElement("button");
-					pen.innerText = "✏";
-					pen.addEventListener("click", function() {
-						var newVal = prompt("Edit your task", p.innerText);
-						editTask(p.innerText, newVal);
-						if (newVal) {
-							p.innerText = newVal;
-						}
-					});
-					div.appendChild(pen);
-
-					//button
-					var btn = document.createElement("button");
-					btn.innerText = "X";
-					btn.addEventListener("click", function() {
-						deleteTask(div);
-					});
-					div.appendChild(btn);
-					document.body.appendChild(div);
-					
-				  }
+				for (let i = 0; i < arr.length; i++){
+					createTask(arr[i]);
+				}
 			}
 		}
 
@@ -218,7 +180,7 @@
 
 	//EVENT LISTENERS
 		//event listener to save using save button or Enter key
-
+		save.addEventListener("click", addTask);
 		input.addEventListener("keydown", function(event){
 			if (event.key == "Enter"){
 				addTask();
@@ -229,7 +191,7 @@
 		deleteAll.addEventListener("click", function(){
 			if (confirm("Are you sure you want to delete all tasks?")) {
 				localStorage.removeItem(key);
-				document.body.innerHTML = "";
+				document.getElementById("list").innerHTML = "";
 			}
 		});
 
