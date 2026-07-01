@@ -1,0 +1,238 @@
+<html>
+<head>
+<title> To Do List </title>
+</head>
+<body>
+	<h2>To Do List </h2>
+	<input id = "inp" placeholder="Enter your Task "><br>
+
+	<script>
+		const key = "todo";
+		var input = document.getElementById("inp");
+
+
+		//Local Storage functions
+		function getData(){
+			return localStorage.getItem(key) || "";
+		}
+		function setData(data){
+			localStorage.setItem(key, data);
+		}
+		
+
+
+
+		//Create a task and add it to the list or to remove from list
+		function createTask(val){
+			var val = input.value;
+			var div = document.createElement("div");
+			div.style.display = "flex";
+			div.style.alignItems = "center";
+			div.style.gap = "10px";
+			div.style.width = "400px";
+			var p = document.createElement("p");
+			var text = document.createTextNode(val);
+			p.appendChild(text);
+			div.appendChild(p);
+			p.style.flex = "1";
+			
+			var check = document.createElement("input");
+			check.type = "checkbox";
+			check.addEventListener("change", function() {
+				if (this.checked) {
+					p.style.textDecoration = "line-through";
+				} else {
+					p.style.textDecoration = "none";
+				}
+			});
+			div.appendChild(check);
+
+			var pen = document.createElement("button");
+			pen.innerText = "✏";
+			pen.addEventListener("click", function() {
+				var newVal = prompt("Edit your task", p.innerText);
+				editTask(p.innerText, newVal);
+				if (newVal) {
+					p.innerText = newVal;
+				}
+			});
+			div.appendChild(pen);
+
+			var btn = document.createElement("button");
+			btn.innerText = "X";
+			btn.addEventListener("click", function() {
+				deleteTask(div);
+			});
+			div.appendChild(btn);
+			document.body.appendChild(div);
+		}
+
+
+
+
+
+		//Save data to memory
+		function saveDataToMemory(val){
+			var old = getData();
+			if (old){
+				old = old + "#" + val;
+			}else{
+				old = val;
+			}
+			setData(old);
+		}
+		
+
+
+
+		//Edit task
+		function editTask(oldVal, newVal){
+			if (newVal && newVal !== oldVal){
+				editTaskInMemory(oldVal, newVal);
+			}
+		}
+		//If i want to edit a task I will have to get it from memory
+		function editTaskInMemory(oldVal, newVal){
+			var old = getData();
+			if (old){
+				var arr = old.split("#");
+				for (let i = 0; i<arr.length; i++){
+					if (arr[i] == oldVal){
+						arr[i] = newVal;
+						break;
+					}
+				}
+				setData(arr.join("#"));
+			}
+		}
+		
+
+
+
+
+		//to delete
+		function deleteTask(div){
+			deleteTaskFromMemory(div.querySelector("p").innerText);
+			div.remove();
+		}
+		//Remove task from memory
+		function deleteTaskFromMemory(val){
+			var old = getData();
+			if (old){
+				var arr = old.split("#");
+				arr = arr.filter(item => item !== val);
+				setData(arr.join("#"));
+			}
+		}
+
+		
+
+
+
+		//Get data from memory and show it on the page
+		function showData(){
+			var old = getData();
+			if (old){
+				var arr = old.split("#");
+				for (let i = 0; i<arr.length; i++){
+					//block
+					var div = document.createElement("div");
+					div.style.display = "flex";
+					div.style.alignItems = "center";
+					div.style.gap = "10px";
+					div.style.width = "400px";
+					
+					//paragraph
+					var p = document.createElement("p");
+					p.innerText = arr[i];
+					p.addEventListener("click", function() {
+						var newVal = prompt("Edit your task", this.innerText);
+						editTask(this.innerText, newVal);
+						if (newVal) {
+							this.innerText = newVal;
+						}
+					});
+					p.style.flex = "1";
+					div.appendChild(p);
+
+					//checkbox
+					var check = document.createElement("input");
+					check.type = "checkbox";
+					check.addEventListener("change", function() {
+						if (this.checked) {
+							p.style.textDecoration = "line-through";
+						} else {
+							p.style.textDecoration = "none";
+						}
+					});
+					div.appendChild(check);
+
+					var pen = document.createElement("button");
+					pen.innerText = "✏";
+					pen.addEventListener("click", function() {
+						var newVal = prompt("Edit your task", p.innerText);
+						editTask(p.innerText, newVal);
+						if (newVal) {
+							p.innerText = newVal;
+						}
+					});
+					div.appendChild(pen);
+
+					//button
+					var btn = document.createElement("button");
+					btn.innerText = "X";
+					btn.addEventListener("click", function() {
+						deleteTask(div);
+					});
+					div.appendChild(btn);
+					document.body.appendChild(div);
+					
+				  }
+			}
+		}
+
+
+
+
+		//To reset input field
+		function resetInput(){
+			input.value = "";
+		}
+		
+
+
+
+		//Main Program
+		showData();
+		function addTask() {
+			const value = input.value.trim();
+			if (!value) {
+				return;
+			}
+			createTask(value);
+			saveDataToMemory(value);
+			resetInput();
+		}
+	
+
+
+	//EVENT LISTENERS
+		//event listener to save using save button or Enter key
+
+		input.addEventListener("keydown", function(event){
+			if (event.key == "Enter"){
+				addTask();
+			}
+		}); 
+
+		//event listener to delete all tasks
+		deleteAll.addEventListener("click", function(){
+			if (confirm("Are you sure you want to delete all tasks?")) {
+				localStorage.removeItem(key);
+				document.body.innerHTML = "";
+			}
+		});
+
+	</script>
+</body>
+</html>
